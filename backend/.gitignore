@@ -1,0 +1,39 @@
+# ── Maven ──────────────────────────────────────────
+backend/target/
+backend/.mvn/
+!backend/.mvn/wrapper/maven-wrapper.jar
+!backend/.mvn/wrapper/maven-wrapper.properties
+*.class
+*.jar
+*.war
+*.ear
+
+# ── IDE ────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+.eclipse/
+*.project
+*.classpath
+*.settings/
+
+# ── OS ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Environment / Secrets ──────────────────────────
+.env
+*.env.local
+*.env.production
+
+# ── Docker volumes ─────────────────────────────────
+docker-volumes/
+
+# ── Logs ───────────────────────────────────────────
+*.log
+logs/
+
+# ── Node (if added later) ──────────────────────────
+node_modules/
+npm-debug.log*

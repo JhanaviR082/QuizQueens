@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QuizQueens 👑</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --paper: #fdfdf0;
+    --paper-dark: #f5f5e0;
+    --line: #b8c9e8;
+    --margin: #e8a0a0;
+    --ink: #1a1a2e;
+    --ink-light: #3d3d5c;
+    --red-accent: #c0392b;
+    --gold: #d4a017;
+    --shadow: rgba(0,0,0,0.15);
+    --line-height: 2rem;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Kalam', cursive;
+    background: #d0d8e4;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ══════════════ SPLASH SCREEN ══════════════ */
+  #splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .splash-crown {
+    font-size: 4rem;
+    animation: crownBounce 2s ease infinite;
+  }
+  @keyframes crownBounce {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  .splash-title {
+    display: flex; gap: 0;
+    font-family: 'Caveat', cursive;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 2px #fdfdf0;
+  }
+
+  .splash-title span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(30px) rotateX(90deg);
+    animation: letterReveal 0.5s forwards;
+    color: #fdfdf0;
+    text-shadow: 0 0 20px rgba(212,160,23,0.6), 0 0 40px rgba(212,160,23,0.3);
+  }
+
+  @keyframes letterReveal {
+    to { opacity: 1; transform: translateY(0) rotateX(0deg); }
+  }
+
+  .splash-sub {
+    font-family: 'Patrick Hand', cursive;
+    color: #b8c9e8;
+    font-size: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 2s forwards;
+    letter-spacing: 0.15em;
+  }
+
+  .splash-bar {
+    width: 200px; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.4s 2.2s forwards;
+  }
+  .splash-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #e8c547);
+    border-radius: 99px;
+    animation: barFill 1.5s 2.3s ease forwards;
+    width: 0;
+  }
+  @keyframes barFill { to { width: 100%; } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ══════════════ NOTEBOOK WRAPPER ══════════════ */
+  #app {
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+    background:
+      repeating-linear-gradient(
+        transparent, transparent calc(var(--line-height) - 1px),
+        var(--line) calc(var(--line-height) - 1px),
+        var(--line) var(--line-height)
+      ),
+      linear-gradient(var(--paper), var(--paper-dark));
+    background-attachment: fixed;
+    animation: appFadeIn 0.6s ease forwards;
+  }
+  @keyframes appFadeIn { from { opacity:0; } to { opacity:1; } }
+  #app.visible { display: flex; }
+
+  /* Margin red line */
+  #app::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 80px;
+    width: 2px;
+    height: 100%;
+    background: var(--margin);
+    opacity: 0.7;
+    z-index: 0;
+    pointer-events: none;
+  }
+  /* Holes */
+  #app::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 80px; height: 100%;
+    background: repeating-linear-gradient(
+      transparent 0px, transparent 60px,
+      transparent 60px, transparent 90px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hole {
+    position: fixed;
+    left: 30px;
+    width: 24px; height: 24px;
+    background: #d0d8e4;
+    border-radius: 50%;
+    border: 2px solid #b0b8c8;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ══════════════ HEADER ══════════════ */
+  .site-header {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Caveat', cursive;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--red-accent);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--gold); }
+
+  .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+  #userInfo {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    background: rgba(255,255,255,0.6);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    display: none;
+  }
+
+  /* ══════════════ CARDS / NOTEBOOK SHEETS ══════════════ */
+  .card {
+    background: var(--paper);
+    border-radius: 4px;
+    box-shadow:
+      4px 4px 0 #c8c8b0,
+      8px 8px 0 #b8b8a0,
+      12px 12px 20px rgba(0,0,0,0.15);
+    border: 1px solid #ddd;
+    position: relative;
+    z-index: 5;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem 2rem 2rem 3.5rem;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-3px) rotateX(1deg);
+    box-shadow:
+      4px 6px 0 #c8c8b0,
+      8px 12px 0 #b8b8a0,
+      14px 16px 25px rgba(0,0,0,0.2);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 2.8rem;
+    width: 2px; height: 100%;
+    background: var(--margin);
+    opacity: 0.5;
+  }
+
+  /* ══════════════ PAGES / VIEWS ══════════════ */
+  .page { display: none; flex-direction: column; gap: 1.5rem; width: 100%; max-width: 900px; animation: slideIn 0.4s ease; }
+  .page.active { display: flex; }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ══════════════ TYPOGRAPHY ══════════════ */
+  h1, h2, h3 {
+    font-family: 'Caveat', cursive;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.8rem; color: var(--red-accent); }
+  h3 { font-size: 1.4rem; }
+  p, label, small { font-family: 'Kalam', cursive; color: var(--ink-light); line-height: 1.7; }
+  small { font-size: 0.85rem; opacity: 0.8; }
+
+  /* ══════════════ FORM ELEMENTS ══════════════ */
+  .field-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field-group label { font-size: 0.9rem; color: var(--red-accent); font-weight: 600; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-family: 'Kalam', cursive;
+    font-size: 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--ink-light);
+    padding: 0.5rem 0.25rem;
+    color: var(--ink);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-bottom-color: var(--red-accent);
+  }
+  select { background: var(--paper); }
+
+  /* ══════════════ BUTTONS ══════════════ */
+  .btn {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0.6rem 1.8rem;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+    letter-spacing: 0.03em;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .btn-primary { background: var(--red-accent); color: #fff; border-color: var(--red-accent); box-shadow: 3px 3px 0 #7a1e14; }
+  .btn-primary:hover { box-shadow: 5px 5px 0 #7a1e14; }
+  .btn-gold { background: var(--gold); color: #fff; border-color: #9a7010; box-shadow: 3px 3px 0 #9a7010; }
+  .btn-gold:hover { box-shadow: 5px 5px 0 #9a7010; }
+  .btn-sm { font-size: 0.9rem; padding: 0.4rem 1rem; }
+  .btn-link { border: none; background: none; box-shadow: none; color: var(--red-accent); text-decoration: underline; padding: 0; cursor: pointer; font-family:'Kalam',cursive; }
+  .btn-link:hover { transform: none; box-shadow: none; opacity: 0.7; }
+
+  .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+  /* ══════════════ TABS ══════════════ */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--line); margin-bottom: 1.5rem; }
+  .tab {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+    color: var(--ink-light);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -2px;
+    background: none;
+    border-top: none; border-left: none; border-right: none;
+  }
+  .tab.active { color: var(--red-accent); border-bottom-color: var(--red-accent); font-weight: 700; }
+
+  /* ══════════════ QUIZ LIST ══════════════ */
+  .quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+  .quiz-card {
+    background: var(--paper);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1.2rem 1.2rem 1.2rem 2rem;
+    box-shadow: 3px 3px 0 #c8c8b0, 6px 6px 10px rgba(0,0,0,0.08);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+  .quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1.5rem;
+    width: 1px; height: 100%;
+    background: var(--margin);
+    opacity: 0.4;
+  }
+  .quiz-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 #c8c8b0, 10px 10px 15px rgba(0,0,0,0.12);
+  }
+  .quiz-card-title { font-family:'Caveat',cursive; font-size:1.3rem; color:var(--ink); margin-bottom: 0.3rem; }
+  .quiz-card-meta { font-size:0.85rem; color:var(--ink-light); font-family:'Patrick Hand',cursive; }
+  .quiz-badge {
+    display: inline-block;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    margin-top: 0.4rem;
+    border: 1.5px solid currentColor;
+  }
+  .badge-mcq { color: #2980b9; }
+  .badge-fill { color: #27ae60; }
+  .badge-mixed { color: #8e44ad; }
+
+  /* ══════════════ QUESTION BUILDER ══════════════ */
+  .question-block {
+    background: rgba(255,255,255,0.5);
+    border: 1px dashed #bbb;
+    border-radius: 4px;
+    padding: 1.2rem;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    margin-bottom: 1rem;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
+  .q-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; }
+  .q-num { font-family:'Caveat',cursive; font-size:1.1rem; color:var(--red-accent); font-weight:700; }
+  .q-remove { background:none; border:none; cursor:pointer; color:#c0392b; font-size:1.2rem; padding:0.2rem; transition:transform 0.15s; }
+  .q-remove:hover { transform:scale(1.3); }
+
+  .options-grid { display:grid; gap:0.4rem; margin-top:0.6rem; }
+  .option-row { display:grid; grid-template-columns: auto 1fr auto; gap:0.5rem; align-items:center; }
+  .option-label { font-family:'Patrick Hand',cursive; font-size:0.85rem; color:var(--ink-light); }
+  .correct-radio { accent-color: var(--red-accent); width:16px; height:16px; cursor:pointer; }
+
+  /* ══════════════ ATTEMPT QUIZ ══════════════ */
+  .attempt-question {
+    background: rgba(255,255,255,0.4);
+    border-left: 3px solid var(--margin);
+    padding: 1rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 1.2rem;
+  }
+  .attempt-q-text { font-family:'Caveat',cursive; font-size:1.2rem; margin-bottom:0.8rem; color:var(--ink); }
+  .attempt-options { display:flex; flex-direction:column; gap:0.4rem; }
+  .attempt-option {
+    display:flex; align-items:center; gap:0.7rem;
+    padding: 0.5rem 0.8rem;
+    border-radius:4px;
+    cursor:pointer;
+    transition: background 0.15s;
+    font-family:'Kalam',cursive;
+  }
+  .attempt-option:hover { background: rgba(184,201,232,0.4); }
+  .attempt-option input[type="radio"] { accent-color: var(--red-accent); }
+  .fill-input {
+    font-family:'Kalam',cursive;
+    font-size:1rem;
+    border: none;
+    border-bottom: 2px solid var(--margin);
+    background: transparent;
+    padding: 0.4rem 0.2rem;
+    width: 100%;
+    color: var(--ink);
+    outline: none;
+  }
+  .fill-input:focus { border-bottom-color: var(--red-accent); }
+
+  /* ══════════════ RESULT ══════════════ */
+  .result-banner {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fdfdf0, #fff9e0);
+    border-radius: 4px;
+    border: 2px solid var(--gold);
+    box-shadow: 4px 4px 0 #d4a017;
+  }
+  .result-score {
+    font-family: 'Caveat', cursive;
+    font-size: 4rem;
+    color: var(--red-accent);
+    line-height: 1;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+  }
+  .result-emoji { font-size: 3rem; }
+
+  /* ══════════════ SCORE HISTORY ══════════════ */
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+    font-family: 'Kalam', cursive;
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-val { font-family:'Caveat',cursive; font-size:1.4rem; color:var(--red-accent); font-weight:700; }
+
+  /* ══════════════ TOAST ══════════════ */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'Patrick Hand', cursive;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    z-index: 9000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    max-width: 300px;
+  }
+  #toast.show { opacity:1; transform:translateY(0); }
+  #toast.success { background: #27ae60; }
+  #toast.error { background: #c0392b; }
+
+  /* ══════════════ PROGRESS BAR ══════════════ */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(184,201,232,0.4);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red-accent), var(--gold));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ══════════════ UTILITIES ══════════════ */
+  .text-center { text-align:center; }
+  .mt-1 { margin-top:0.5rem; }
+  .mt-2 { margin-top:1rem; }
+  .mt-3 { margin-top:1.5rem; }
+  .divider { border:none; border-top: 1px solid var(--line); margin: 1rem 0; }
+  .tag {
+    display:inline-block;
+    background:rgba(192,57,43,0.1);
+    color:var(--red-accent);
+    font-family:'Patrick Hand',cursive;
+    font-size:0.8rem;
+    padding:0.15rem 0.6rem;
+    border-radius:20px;
+    margin:0.1rem;
+  }
+  .empty-state {
+    text-align:center;
+    padding: 3rem 1rem;
+    opacity: 0.6;
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+  }
+  .empty-state .emoji { font-size: 3rem; display:block; margin-bottom:0.5rem; }
+
+  /* ══════════════ LOADING ══════════════ */
+  .spinner {
+    display:inline-block;
+    width:20px; height:20px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: var(--red-accent);
+    border-radius:50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ══════════════ RESPONSIVE ══════════════ */
+  @media (max-width:600px) {
+    #app::before { left: 50px; }
+    .card { padding: 1.5rem 1.5rem 1.5rem 2.5rem; }
+    .hole { left: 15px; }
+    .quiz-grid { grid-template-columns: 1fr; }
+    .site-header { flex-direction: column; gap: 1rem; text-align:center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div class="splash-crown">👑</div>
+  <div class="splash-title" id="splashTitle"></div>
+  <div class="splash-sub">WHERE KNOWLEDGE WEARS A CROWN</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- ══ NOTEBOOK HOLES ══ -->
+<div class="hole" style="top:80px"></div>
+<div class="hole" style="top:180px"></div>
+<div class="hole" style="top:280px"></div>
+<div class="hole" style="top:380px"></div>
+<div class="hole" style="top:480px"></div>
+<div class="hole" style="top:580px"></div>
+
+<!-- ══ TOAST ══ -->
+<div id="toast"></div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <header class="site-header">
+    <div class="logo">Quiz<span>Queens</span> 👑</div>
+    <div class="nav-actions">
+      <div id="userInfo"></div>
+      <button class="btn btn-sm" id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
+      <button class="btn btn-sm btn-primary" id="loginNavBtn" onclick="showPage('auth')">Login</button>
+    </div>
+  </header>
+
+  <!-- ══ AUTH PAGE ══ -->
+  <div class="page active" id="page-auth">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <!-- Login -->
+      <div id="loginForm">
+        <h2>Welcome back ✍️</h2>
+        <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
+          <div class="field-group">
+            <label>Username</label>
+            <input type="text" id="loginUsername" placeholder="your name here..."/>
+          </div>
+          <div class="field-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="shhh... secret"/>
+          </div>
+          <button class="btn btn-primary" onclick="login()">Login →</button>
+        </div>
+      </div>
+
+      <!-- Register -->
+      <div id="registerForm" style="display:none">
+        <h2>Join the Queens 👑</h2>
+        <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
+          <div class="field-group">
+            <label>Username</label>
+            <input type="text" id="regUsername" placeholder="choose a cool name..."/>
+          </div>
+          <div class="field-group">
+            <label>Email</label>
+            <input type="email" id="regEmail" placeholder="your@email.com"/>
+          </div>
+          <div class="field-group">
+            <label>Password</label>
+            <input type="password" id="regPassword" placeholder="make it strong!"/>
+          </div>
+          <button class="btn btn-gold" onclick="register()">Create Account ✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="page" id="page-dashboard">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <h1 id="dashGreeting">Hello, Queen! 👑</h1>
+      <button class="btn btn-gold" onclick="showPage('create')">+ Create Quiz</button>
+    </div>
+
+    <div class="tabs" style="max-width:900px;width:100%;">
+      <button class="tab active" onclick="switchDashTab('browse')">Browse Quizzes</button>
+      <button class="tab" onclick="switchDashTab('mine')">My Quizzes</button>
+      <button class="tab" onclick="switchDashTab('scores')">My Scores</button>
+    </div>
+
+    <!-- Browse -->
+    <div id="tab-browse">
+      <div id="browseGrid" class="quiz-grid">
+        <div class="empty-state"><span class="emoji">📚</span>Loading quizzes...</div>
+      </div>
+    </div>
+
+    <!-- Mine -->
+    <div id="tab-mine" style="display:none">
+      <div id="mineGrid" class="quiz-grid">
+        <div class="empty-state"><span class="emoji">✏️</span>You haven't created any quizzes yet.</div>
+      </div>
+    </div>
+
+    <!-- Scores -->
+    <div id="tab-scores" style="display:none">
+      <div class="card" id="scoresContainer">
+        <div class="empty-state"><span class="emoji">📊</span>No scores yet. Take a quiz!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CREATE QUIZ ══ -->
+  <div class="page" id="page-create">
+    <div class="card" style="max-width:750px">
+      <h2>✏️ Create a New Quiz</h2>
+      <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
+        <div class="field-group">
+          <label>Quiz Title *</label>
+          <input type="text" id="quizTitle" placeholder="Give your quiz a catchy name..."/>
+        </div>
+        <div class="field-group">
+          <label>Description</label>
+          <textarea id="quizDesc" rows="2" placeholder="What's this quiz about?"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Quiz Type</label>
+          <select id="quizType" onchange="updateQuizType()">
+            <option value="MCQ">Multiple Choice (MCQ)</option>
+            <option value="FILL">Fill in the Blank</option>
+            <option value="MIXED">Mixed</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin:1.5rem 0"/>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3>Questions</h3>
+        <button class="btn btn-sm" onclick="addQuestion()">+ Add Question</button>
+      </div>
+
+      <div id="questionsContainer"></div>
+
+      <div class="btn-group mt-3">
+        <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz 💾</button>
+        <button class="btn" onclick="showPage('dashboard')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ATTEMPT QUIZ ══ -->
+  <div class="page" id="page-attempt">
+    <div class="card" style="max-width:700px">
+      <div class="progress-bar"><div class="progress-fill" id="attemptProgress" style="width:0%"></div></div>
+      <h2 id="attemptTitle">Quiz Title</h2>
+      <p id="attemptDesc" style="margin-bottom:1.2rem;"></p>
+      <div id="attemptQuestions"></div>
+      <div class="btn-group mt-3">
+        <button class="btn btn-primary" onclick="submitAttempt()">Submit Answers 🎯</button>
+        <button class="btn" onclick="showPage('dashboard')">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RESULT ══ -->
+  <div class="page" id="page-result">
+    <div class="card" style="max-width:600px">
+      <div class="result-banner">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <div class="result-score" id="resultScore">0/0</div>
+        <p id="resultMsg" style="margin-top:0.5rem;font-size:1.1rem;"></p>
+        <p id="resultPct" style="font-family:'Caveat',cursive;font-size:1.3rem;color:var(--gold);margin-top:0.3rem;"></p>
+      </div>
+
+      <div id="resultBreakdown" style="margin-top:1.5rem;"></div>
+
+      <div class="btn-group mt-3">
+        <button class="btn btn-gold" onclick="showPage('dashboard')">← Back to Quizzes</button>
+        <button class="btn btn-primary" onclick="retakeQuiz()">Retake Quiz 🔁</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════════════════════
+// backend server base URL (change if running elsewhere)
+const API = 'http://localhost:8080/api';
+let token = localStorage.getItem('qq_token') || null;
+let currentUser = JSON.parse(localStorage.getItem('qq_user') || 'null');
+let currentQuizData = null;
+let currentAttemptAnswers = {};
+
+// ══════════════════════════════════════════════════════
+//  SPLASH
+// ══════════════════════════════════════════════════════
+const TITLE = 'QuizQueens';
+window.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('splashTitle');
+  TITLE.split('').forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.style.animationDelay = `${0.1 + i * 0.09}s`;
+    container.appendChild(span);
+  });
+
+  const splashDuration = 100 + TITLE.length * 90 + 1800;
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    const app = document.getElementById('app');
+    app.classList.add('visible');
+    if (token && currentUser) initAuthenticatedState();
+    else showPage('auth');
+  }, splashDuration);
+});
+
+// ══════════════════════════════════════════════════════
+//  API HELPER
+// ══════════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(API + path, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || 'Something went wrong');
+    return data;
+  } catch (e) { throw e; }
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 3500);
+}
+
+// ══════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.querySelectorAll('#page-auth .tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+}
+
+async function login() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!username || !password) return toast('Fill in all fields', 'error');
+  try {
+    const data = await api('POST', '/auth/login', { username, password });
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('qq_token', token);
+    localStorage.setItem('qq_user', JSON.stringify(currentUser));
+    toast('Welcome back, Queen! 👑', 'success');
+    initAuthenticatedState();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function register() {
+  const username = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  if (!username || !email || !password) return toast('Fill in all fields', 'error');
+  try {
+    await api('POST', '/auth/register', { username, email, password });
+    toast('Account created! Please login 🎉', 'success');
+    switchAuthTab('login');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function logout() {
+  token = null; currentUser = null;
+  localStorage.removeItem('qq_token');
+  localStorage.removeItem('qq_user');
+  document.getElementById('userInfo').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('loginNavBtn').style.display = 'inline-block';
+  showPage('auth');
+  toast('Goodbye! 👋');
+}
+
+function initAuthenticatedState() {
+  document.getElementById('userInfo').textContent = `✍️ ${currentUser.username}`;
+  document.getElementById('userInfo').style.display = 'inline-block';
+  document.getElementById('logoutBtn').style.display = 'inline-block';
+  document.getElementById('loginNavBtn').style.display = 'none';
+  document.getElementById('dashGreeting').textContent = `Hello, ${currentUser.username}! 👑`;
+  showPage('dashboard');
+  loadBrowse();
+}
+
+// ══════════════════════════════════════════════════════
+//  PAGE NAVIGATION
+// ══════════════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById(`page-${name}`);
+  if (pg) pg.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD TABS
+// ══════════════════════════════════════════════════════
+function switchDashTab(tab) {
+  ['browse','mine','scores'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#page-dashboard .tab').forEach((t,i) => {
+    t.classList.toggle('active', ['browse','mine','scores'][i] === tab);
+  });
+  if (tab === 'browse') loadBrowse();
+  else if (tab === 'mine') loadMine();
+  else loadScores();
+}
+
+// ══════════════════════════════════════════════════════
+//  QUIZ CARDS
+// ══════════════════════════════════════════════════════
+function renderQuizCard(q, container, owned=false) {
+  const typeMap = { MCQ:'badge-mcq MCQ', FILL:'badge-fill Fill Blank', MIXED:'badge-mixed Mixed' };
+  const [cls, lbl] = (typeMap[q.quizType] || 'badge-mcq MCQ').split(' ');
+  const card = document.createElement('div');
+  card.className = 'quiz-card';
+  card.innerHTML = `
+    <div class="quiz-card-title">${escHtml(q.title)}</div>
+    <div class="quiz-card-meta">${q.questions ? q.questions.length : q.questionCount || 0} questions · by ${escHtml(q.creatorUsername || q.creator || 'Unknown')}</div>
+    <span class="quiz-badge ${cls}">⬡ ${lbl}</span>
+    ${q.description ? `<p style="font-size:0.85rem;margin-top:0.4rem;opacity:0.8">${escHtml(q.description)}</p>` : ''}
+    <div class="btn-group mt-2">
+      <button class="btn btn-sm btn-primary" onclick='startAttempt(${JSON.stringify(q.id)})'>Take Quiz →</button>
+      ${owned ? `<button class="btn btn-sm" onclick='deleteQuiz(${JSON.stringify(q.id)}, this)'>🗑</button>` : ''}
+    </div>`;
+  container.appendChild(card);
+}
+
+async function loadBrowse() {
+  const grid = document.getElementById('browseGrid');
+  grid.innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading...</div>';
+  try {
+    const quizzes = await api('GET', '/quizzes');
+    grid.innerHTML = '';
+    if (!quizzes.length) { grid.innerHTML = '<div class="empty-state"><span class="emoji">📭</span>No quizzes yet. Create one!</div>'; return; }
+    quizzes.forEach(q => renderQuizCard(q, grid));
+  } catch(e) { grid.innerHTML = `<div class="empty-state">⚠️ ${e.message}</div>`; }
+}
+
+async function loadMine() {
+  const grid = document.getElementById('mineGrid');
+  grid.innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading...</div>';
+  try {
+    const quizzes = await api('GET', '/quizzes/mine');
+    grid.innerHTML = '';
+    if (!quizzes.length) { grid.innerHTML = '<div class="empty-state"><span class="emoji">✏️</span>You haven\'t created any quizzes yet.</div>'; return; }
+    quizzes.forEach(q => renderQuizCard(q, grid, true));
+  } catch(e) { grid.innerHTML = `<div class="empty-state">⚠️ ${e.message}</div>`; }
+}
+
+async function deleteQuiz(id, btn) {
+  if (!confirm('Delete this quiz?')) return;
+  try {
+    await api('DELETE', `/quizzes/${id}`);
+    toast('Quiz deleted', 'success');
+    loadMine();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function loadScores() {
+  const container = document.getElementById('scoresContainer');
+  container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+  try {
+    const scores = await api('GET', '/scores/mine');
+    if (!scores.length) { container.innerHTML = '<div class="empty-state"><span class="emoji">📊</span>No scores yet. Take a quiz!</div>'; return; }
+    container.innerHTML = `<h3 style="margin-bottom:1rem;">My Score History 📊</h3>` +
+      scores.map(s => `
+        <div class="score-row">
+          <div>
+            <div style="font-family:'Caveat',cursive;font-size:1.1rem;">${escHtml(s.quizTitle)}</div>
+            <small>${new Date(s.attemptedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small>
+          </div>
+          <div class="score-val">${s.score}/${s.total} <span style="font-size:0.9rem;color:var(--gold)">(${Math.round(s.score/s.total*100)}%)</span></div>
+        </div>`).join('');
+  } catch(e) { container.innerHTML = `<div class="empty-state">⚠️ ${e.message}</div>`; }
+}
+
+// ══════════════════════════════════════════════════════
+//  CREATE QUIZ
+// ══════════════════════════════════════════════════════
+let questionCount = 0;
+const defaultQuizType = () => document.getElementById('quizType').value;
+
+function updateQuizType() { /* type change hook */ }
+
+function addQuestion(forceType) {
+  questionCount++;
+  const qType = forceType || (defaultQuizType() === 'MIXED' ? 'MCQ' : defaultQuizType());
+  const container = document.getElementById('questionsContainer');
+  const div = document.createElement('div');
+  div.className = 'question-block';
+  div.id = `q${questionCount}`;
+  div.dataset.qtype = qType;
+  div.innerHTML = `
+    <div class="q-header">
+      <span class="q-num">Q${questionCount}</span>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        ${defaultQuizType()==='MIXED'?`<select class="btn btn-sm" style="padding:0.2rem 0.5rem;font-family:'Patrick Hand',cursive;font-size:0.8rem" onchange="changeQType(${questionCount},this.value)"><option value="MCQ">MCQ</option><option value="FILL">Fill in Blank</option></select>`:''}
+        <button class="q-remove" onclick="removeQuestion(${questionCount})" title="Remove">✕</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Question text *</label>
+      <input type="text" id="q${questionCount}-text" placeholder="${qType==='FILL'?'Write sentence with ___ as blank':'Write your question...'}" />
+    </div>
+    <div id="q${questionCount}-options">${renderOptionFields(questionCount, qType)}</div>`;
+  container.appendChild(div);
+  scrollToEl(div);
+}
+
+function renderOptionFields(n, type) {
+  if (type === 'FILL') {
+    return `<div class="field-group mt-1"><label>Correct Answer</label><input type="text" id="q${n}-answer" placeholder="The exact correct answer..."/></div>`;
+  }
+  // MCQ: 4 options
+  return `<div class="options-grid mt-1">
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:0.3rem 0.8rem;align-items:center;font-family:'Patrick Hand',cursive;font-size:0.8rem;color:var(--ink-light);margin-bottom:0.3rem;">
+      <span>✓</span><span>Option text</span>
+    </div>
+    ${['A','B','C','D'].map(l=>`
+    <div class="option-row">
+      <label class="option-label">${l}</label>
+      <input type="text" id="q${n}-opt${l}" placeholder="Option ${l}..."/>
+      <input type="radio" class="correct-radio" name="q${n}-correct" value="${l}" title="Mark as correct"/>
+    </div>`).join('')}
+    <small style="margin-top:0.3rem">Click the circle (○) to mark the correct option</small>
+  </div>`;
+}
+
+function changeQType(n, type) {
+  const block = document.getElementById(`q${n}`);
+  block.dataset.qtype = type;
+  block.querySelector(`#q${n}-options`).innerHTML = renderOptionFields(n, type);
+}
+
+function removeQuestion(n) {
+  const el = document.getElementById(`q${n}`);
+  if (el) { el.style.opacity='0'; el.style.transform='scale(0.95)'; el.style.transition='all 0.2s'; setTimeout(()=>el.remove(), 200); }
+}
+
+async function saveQuiz() {
+  const title = document.getElementById('quizTitle').value.trim();
+  const description = document.getElementById('quizDesc').value.trim();
+  const quizType = document.getElementById('quizType').value;
+
+  if (!title) return toast('Quiz needs a title!', 'error');
+
+  const blocks = document.querySelectorAll('.question-block');
+  if (!blocks.length) return toast('Add at least one question!', 'error');
+
+  const questions = [];
+  for (const block of blocks) {
+    const n = block.id.replace('q','');
+    const qtype = block.dataset.qtype;
+    const text = document.getElementById(`q${n}-text`).value.trim();
+    if (!text) return toast(`Question text missing for Q${n}`, 'error');
+
+    if (qtype === 'FILL') {
+      const answer = document.getElementById(`q${n}-answer`)?.value.trim();
+      if (!answer) return toast(`Answer missing for Q${n}`, 'error');
+      questions.push({ questionText: text, questionType: 'FILL', correctAnswer: answer, options: [] });
+    } else {
+      const opts = ['A','B','C','D'].map(l => document.getElementById(`q${n}-opt${l}`)?.value.trim()).filter(Boolean);
+      const correct = block.querySelector(`input[name="q${n}-correct"]:checked`)?.value;
+      if (opts.length < 2) return toast(`Q${n} needs at least 2 options`, 'error');
+      if (!correct) return toast(`Select correct answer for Q${n}`, 'error');
+      const correctText = document.getElementById(`q${n}-opt${correct}`).value.trim();
+      questions.push({ questionText: text, questionType: 'MCQ', options: opts, correctAnswer: correctText });
+    }
+  }
+
+  try {
+    await api('POST', '/quizzes', { title, description, quizType, questions });
+    toast('Quiz created! 🎉', 'success');
+    document.getElementById('quizTitle').value = '';
+    document.getElementById('quizDesc').value = '';
+    document.getElementById('questionsContainer').innerHTML = '';
+    questionCount = 0;
+    showPage('dashboard');
+    switchDashTab('mine');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════
+//  ATTEMPT QUIZ
+// ══════════════════════════════════════════════════════
+async function startAttempt(quizId) {
+  if (!token) { toast('Please login first!', 'error'); showPage('auth'); return; }
+  try {
+    const quiz = await api('GET', `/quizzes/${quizId}`);
+    currentQuizData = quiz;
+    currentAttemptAnswers = {};
+    document.getElementById('attemptTitle').textContent = quiz.title;
+    document.getElementById('attemptDesc').textContent = quiz.description || '';
+    document.getElementById('attemptProgress').style.width = '0%';
+
+    const container = document.getElementById('attemptQuestions');
+    container.innerHTML = '';
+
+    quiz.questions.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.className = 'attempt-question';
+      div.id = `aq${i}`;
+      if (q.questionType === 'FILL') {
+        div.innerHTML = `
+          <div class="attempt-q-text">${i+1}. ${escHtml(q.questionText)}</div>
+          <input type="text" class="fill-input" id="aq${i}-fill" placeholder="Type your answer..." oninput="updateProgress()"/>`;
+      } else {
+        const opts = q.options.map((opt, oi) => `
+          <label class="attempt-option">
+            <input type="radio" name="aq${i}" value="${escHtml(opt)}" onchange="updateProgress()"/>
+            ${escHtml(opt)}
+          </label>`).join('');
+        div.innerHTML = `<div class="attempt-q-text">${i+1}. ${escHtml(q.questionText)}</div><div class="attempt-options">${opts}</div>`;
+      }
+      container.appendChild(div);
+    });
+
+    showPage('attempt');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function updateProgress() {
+  const total = currentQuizData.questions.length;
+  let answered = 0;
+  currentQuizData.questions.forEach((q, i) => {
+    if (q.questionType === 'FILL') {
+      if (document.getElementById(`aq${i}-fill`)?.value.trim()) answered++;
+    } else {
+      if (document.querySelector(`input[name="aq${i}"]:checked`)) answered++;
+    }
+  });
+  document.getElementById('attemptProgress').style.width = `${(answered/total)*100}%`;
+}
+
+async function submitAttempt() {
+  const answers = [];
+  let unanswered = 0;
+  currentQuizData.questions.forEach((q, i) => {
+    let ans = '';
+    if (q.questionType === 'FILL') {
+      ans = document.getElementById(`aq${i}-fill`)?.value.trim() || '';
+    } else {
+      ans = document.querySelector(`input[name="aq${i}"]:checked`)?.value || '';
+    }
+    if (!ans) unanswered++;
+    answers.push({ questionId: q.id, answer: ans });
+  });
+
+  if (unanswered > 0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+
+  try {
+    const result = await api('POST', `/quizzes/${currentQuizData.id}/attempt`, { answers });
+    showResult(result);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function retakeQuiz() { startAttempt(currentQuizData.id); }
+
+function showResult(result) {
+  const pct = Math.round((result.score / result.total) * 100);
+  document.getElementById('resultScore').textContent = `${result.score} / ${result.total}`;
+  document.getElementById('resultPct').textContent = `${pct}%`;
+
+  let emoji = '😢', msg = 'Keep practicing!';
+  if (pct >= 90) { emoji = '🏆'; msg = 'Outstanding! You are a true Queen!'; }
+  else if (pct >= 70) { emoji = '🎉'; msg = 'Great job! Almost perfect!'; }
+  else if (pct >= 50) { emoji = '📚'; msg = 'Not bad! Keep studying!'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultMsg').textContent = msg;
+
+  // Breakdown
+  if (result.breakdown && result.breakdown.length) {
+    const html = result.breakdown.map((b,i) => `
+      <div style="padding:0.6rem 0;border-bottom:1px solid var(--line);">
+        <div style="font-family:'Caveat',cursive;font-size:1.05rem;">${i+1}. ${escHtml(b.questionText)}</div>
+        <div style="font-size:0.9rem;margin-top:0.2rem;">
+          Your answer: <span style="color:${b.correct?'#27ae60':'#c0392b'}">${escHtml(b.userAnswer||'(no answer)')} ${b.correct?'✓':'✗'}</span>
+          ${!b.correct?`<br>Correct: <span style="color:#27ae60">${escHtml(b.correctAnswer)}</span>`:''}
+        </div>
+      </div>`).join('');
+    document.getElementById('resultBreakdown').innerHTML = `<h3 style="margin-bottom:0.5rem;">Review 📝</h3>${html}`;
+  }
+
+  showPage('result');
+}
+
+// ══════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function scrollToEl(el) { setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100); }
+</script>
+</body>
+</html>
