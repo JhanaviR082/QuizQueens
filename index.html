@@ -747,6 +747,98 @@ window.addEventListener('DOMContentLoaded', () => {
   }, splashDuration);
 });
 
+
+let focusedQuestionIndex = 0;
+document.addEventListener('keydown', (e) => {
+  const currentPage = document.querySelector('[id^="page-"]:not([style*="display: none"])');
+  const pageName = currentPage?.id || '';
+
+  // Global: Escape to go back
+  if (e.key === 'Escape') {
+    if (pageName === 'page-attempt') showPage('dashboard');
+    else if (pageName === 'page-create') showPage('dashboard');
+    else if (pageName === 'page-result') showPage('dashboard');
+    return;
+  }
+
+  // Global: ? to show help
+  if (e.key === '?') {
+    const helpMsg = `
+📚 KEYBOARD SHORTCUTS
+
+🧭 Navigation & General:
+  • Tab: Focus next question
+  • Shift+Tab: Previous question
+  • Escape: Go back to dashboard
+  • ?: Show this help
+
+📝 Quiz Attempt:
+  • 1-4: Select MCQ option (in focused question)
+  • Enter: Submit quiz
+
+✨ Quiz Creation:
+  • Ctrl+K: Add new question
+  • Ctrl+S: Save quiz
+`;
+    alert(helpMsg);
+    return;
+  }
+
+  // Tab Navigation for attempt page
+  if (pageName === 'page-attempt') {
+    const questions = document.querySelectorAll('.attempt-question');
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        focusedQuestionIndex = Math.max(0, focusedQuestionIndex - 1);
+      } else {
+        focusedQuestionIndex = Math.min(questions.length - 1, focusedQuestionIndex + 1);
+      }
+      questions[focusedQuestionIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      questions[focusedQuestionIndex].style.boxShadow = '0 0 0 3px rgba(212,160,23,0.5)';
+      questions.forEach((q, i) => {
+        if (i !== focusedQuestionIndex) q.style.boxShadow = '';
+      });
+      return;
+    }
+
+    // Number keys for MCQ selection
+    if (/^[1-4]$/.test(e.key)) {
+      const idx = parseInt(e.key) - 1;
+      const focusedQ = questions[focusedQuestionIndex];
+      const radios = focusedQ.querySelectorAll('input[type="radio"]');
+      if (radios[idx]) {
+        radios[idx].checked = true;
+        radios[idx].dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return;
+    }
+
+    // Enter to submit attempt
+    if (e.key === 'Enter' && e.ctrlKey) {
+      submitAttempt();
+      return;
+    }
+  }
+
+  // Quiz Creation shortcuts
+  if (pageName === 'page-create') {
+    // Ctrl+K to add question
+    if (e.ctrlKey && e.key === 'k') {
+      e.preventDefault();
+      addQuestion();
+      return;
+    }
+
+    // Ctrl+S to save quiz
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      saveQuiz();
+      return;
+    }
+  }
+});
+
 // ══════════════════════════════════════════════════════
 //  API HELPER
 // ══════════════════════════════════════════════════════
