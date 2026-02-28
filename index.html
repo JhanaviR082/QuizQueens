@@ -604,7 +604,7 @@ select option{background:var(--bg-secondary);}
           <div class="field-group"><label>Username</label><input type="text" id="regUsername" placeholder="choose a cool name..."/></div>
           <div class="field-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"/></div>
           <div class="field-group"><label>Password</label><input type="password" id="regPassword" placeholder="make it strong!"/></div>
-          <button class="btn btn-gold" onclick="register()">Create Account ✨</button>
+          <button class="btn btn-gold" onclick="register()">Create Account</button>
         </div>
       </div>
     </div>
@@ -613,7 +613,7 @@ select option{background:var(--bg-secondary);}
   <!-- DASHBOARD -->
   <div class="page" id="page-dashboard">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-      <h1 id="dashGreeting">Hello, Queen! 👑</h1>
+      <h1 id="dashGreeting">Hello, Queen</h1>
       <button class="btn btn-gold" onclick="showPage('create')">+ Create Quiz</button>
     </div>
     <div class="tabs" style="max-width:900px;width:100%;">
@@ -629,7 +629,7 @@ select option{background:var(--bg-secondary);}
   <!-- CREATE QUIZ -->
   <div class="page" id="page-create">
     <div class="card" style="max-width:750px">
-      <h2>✏️ Create a New Quiz</h2>
+      <h2>Create a New Quiz</h2>
       <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
         <div class="field-group"><label>Quiz Title *</label><input type="text" id="quizTitle" placeholder="Give your quiz a catchy name..."/></div>
         <div class="field-group"><label>Description</label><textarea id="quizDesc" rows="2" placeholder="What's this quiz about?"></textarea></div>
@@ -649,7 +649,7 @@ select option{background:var(--bg-secondary);}
       </div>
       <div id="questionsContainer"></div>
       <div class="btn-group mt-3">
-        <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz 💾</button>
+        <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz</button>
         <button class="btn" onclick="showPage('dashboard')">Cancel</button>
       </div>
     </div>
@@ -663,7 +663,7 @@ select option{background:var(--bg-secondary);}
       <p id="attemptDesc" style="margin-bottom:1.2rem;"></p>
       <div id="attemptQuestions"></div>
       <div class="btn-group mt-3">
-        <button class="btn btn-primary" onclick="submitAttempt()">Submit Answers 🎯</button>
+        <button class="btn btn-primary" onclick="submitAttempt()">Submit Answers</button>
         <button class="btn" onclick="showPage('dashboard')">← Back</button>
       </div>
     </div>
@@ -733,7 +733,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === '?') {
-    alert(`📚 KEYBOARD SHORTCUTS\n\n🧭 Navigation:\n  • Tab: Next question\n  • Shift+Tab: Prev question\n  • Escape: Back to dashboard\n\n📝 Quiz Attempt:\n  • 1-4: Select MCQ option\n  • Ctrl+Enter: Submit quiz\n\n✨ Create Quiz:\n  • Ctrl+K: Add question\n  • Ctrl+S: Save quiz`);
+    alert(` KEYBOARD SHORTCUTS\n\n Navigation:\n  • Tab: Next question\n  • Shift+Tab: Prev question\n  • Escape: Back to dashboard\n\n Quiz Attempt:\n  • 1-4: Select MCQ option\n  • Ctrl+Enter: Submit quiz\n\n Create Quiz:\n  • Ctrl+K: Add question\n  • Ctrl+S: Save quiz`);
     return;
   }
   if (pageName === 'page-attempt') {
@@ -805,7 +805,7 @@ async function login() {
     token = data.token; currentUser = data.user;
     localStorage.setItem('qq_token', token);
     localStorage.setItem('qq_user', JSON.stringify(currentUser));
-    toast('Welcome back, Queen! 👑', 'success');
+    toast('Welcome back, Queen!', 'success');
     initAuthenticatedState();
   } catch(e) { toast(e.message, 'error'); }
 }
@@ -816,7 +816,7 @@ async function register() {
   if (!username || !email || !password) return toast('Fill in all fields', 'error');
   try {
     await api('POST', '/auth/register', { username, email, password });
-    toast('Account created! Please login 🎉', 'success');
+    toast('Account created! Please login', 'success');
     switchAuthTab('login');
   } catch(e) { toast(e.message, 'error'); }
 }
@@ -826,10 +826,10 @@ function logout() {
   document.getElementById('userInfo').style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'none';
   document.getElementById('loginNavBtn').style.display = 'inline-block';
-  showPage('auth'); toast('Goodbye! 👋');
+  showPage('auth'); toast('Goodbye!');
 }
 function initAuthenticatedState() {
-  document.getElementById('userInfo').textContent = `✍️ ${currentUser.username}`;
+  document.getElementById('userInfo').textContent = ` ${currentUser.username}`;
   document.getElementById('userInfo').style.display = 'inline-block';
   document.getElementById('logoutBtn').style.display = 'inline-block';
   document.getElementById('loginNavBtn').style.display = 'none';
@@ -892,7 +892,7 @@ async function loadMine() {
   try {
     const quizzes = await api('GET', '/quizzes/mine');
     grid.innerHTML = '';
-    if (!quizzes.length) { grid.innerHTML='<div class="empty-state"><span class="emoji">✏️</span>You haven\'t created any quizzes yet.</div>'; return; }
+    if (!quizzes.length) { grid.innerHTML='<div class="empty-state">You haven\'t created any quizzes yet.</div>'; return; }
     quizzes.forEach(q => renderQuizCard(q, grid, true));
   } catch(e) { grid.innerHTML=`<div class="empty-state">⚠️ ${e.message}</div>`; }
 }
@@ -906,8 +906,8 @@ async function loadScores() {
   container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
   try {
     const scores = await api('GET', '/scores/mine');
-    if (!scores.length) { container.innerHTML='<div class="empty-state"><span class="emoji">📊</span>No scores yet. Take a quiz!</div>'; return; }
-    container.innerHTML = `<h3 style="margin-bottom:1rem;">My Score History 📊</h3>` +
+    if (!scores.length) { container.innerHTML='<div class="empty-state">No scores yet. Take a quiz!</div>'; return; }
+    container.innerHTML = `<h3 style="margin-bottom:1rem;">My Score History </h3>` +
       scores.map(s=>`
         <div class="score-row">
           <div>
@@ -1091,7 +1091,7 @@ function showResult(result) {
           ${!b.correct?`<br>Correct: <span style="color:rgba(255,255,255,0.7);text-shadow:0 0 6px rgba(255,255,255,0.4)">${escHtml(b.correctAnswer)}</span>`:''}
         </div>
       </div>`).join('');
-    document.getElementById('resultBreakdown').innerHTML = `<h3 style="margin-bottom:0.5rem;">Review 📝</h3>${html}`;
+    document.getElementById('resultBreakdown').innerHTML = `<h3 style="margin-bottom:0.5rem;">Review </h3>${html}`;
   }
   showPage('result');
 }
