@@ -112,9 +112,10 @@ body {
 @keyframes letterDrop { to { opacity:1; transform:translateY(0); } }
 
 .splash-crown {
-  font-size:1.55rem; position:relative; z-index:1;
+  font-size:3.5rem; position:relative; z-index:1;
+  color: var(--royal-gold);
   animation: crownSway 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 10px rgba(216,179,95,0.45));
+  filter: drop-shadow(0 0 12px rgba(216,179,95,0.5));
 }
 @keyframes crownSway {
   0%,100%{transform:rotate(-5deg) scale(1);}
@@ -579,7 +580,7 @@ select option{background:var(--bg-secondary);}
 <div id="splash">
   <div class="splash-label">
     <div class="splash-label-eyebrow">Composition Notebook</div>
-    <div class="splash-crown">👑</div>
+    <div class="splash-crown">♕</div>
     <div class="splash-title" id="splashTitle"></div>
     <div class="splash-sub-label">WHERE KNOWLEDGE WEARS A CROWN</div>
   </div>
