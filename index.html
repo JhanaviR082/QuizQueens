@@ -3,45 +3,39 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QuizQueens </title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet"/>
+<title>QuizQueens</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='24' font-size='24'%3E ♛ %3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════════════════════════════
    COMPOSITION NOTEBOOK THEME — QuizQueens
    Black speckled cover · White ruled lines · Chalk glow
 ═══════════════════════════════════════════════════════ */
 :root {
-  --black:        #0c0c0c;
-  --black-mid:    #121212;
-  --black-card:   #111111;
-  --black-card2:  #181818;
-  --white:        #f0ede8;
-  --white-dim:    rgba(240,237,232,0.62);
-  --white-faint:  rgba(240,237,232,0.25);
-  --white-ghost:  rgba(240,237,232,0.07);
-  --rule-line:    rgba(255,255,255,0.09);
-  --rule-bright:  rgba(255,255,255,0.16);
-  --margin-line:  rgba(255,255,255,0.18);
-  --glow:         rgba(255,255,255,0.9);
-  --line-h:       2.4rem;
-  /* compat */
-  --line:         rgba(255,255,255,0.09);
-  --gold:         #e8e0c8;
-  --ink:          #f0ede8;
-  --ink-light:    rgba(240,237,232,0.62);
-  --margin:       rgba(255,255,255,0.18);
-  --red-accent:   #f0ede8;
-  --paper:        #111111;
+  --bg-primary: #0f0b12;
+  --bg-secondary: #18111b;
+  --bg-card: #211620;
+
+  --accent-gold: #ff4d6d;
+  --accent-gold-soft: #ff6b85;
+  --accent-burgundy: #ff4d6d;
+  --royal-gold: #d8b35f;
+
+  --text-primary: #f5f5f7;
+  --text-secondary: #b4adb8;
+  --text-muted: #7e7484;
+
+  --border-subtle: rgba(255,255,255,0.08);
 }
 
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
 body {
-  font-family: 'Kalam', cursive;
-  background: var(--black);
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  color: var(--white);
 }
 
 /* ═══════════════════ SPLASH — NOTEBOOK COVER ═══════════════════ */
@@ -51,8 +45,10 @@ body {
   align-items: center; justify-content: center;
   gap: 2.5rem;
   transition: opacity 0.9s ease, visibility 0.9s ease;
-  background-color: #0f0f0f;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.48'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23f)'/%3E%3C/svg%3E");
+  background:
+    radial-gradient(circle at 25% 20%, rgba(216,179,95,0.14), transparent 36%),
+    radial-gradient(circle at 80% 70%, rgba(122,22,40,0.28), transparent 45%),
+    linear-gradient(160deg, #2a0f1c 0%, #160b14 55%, #0c0a11 100%);
 }
 #splash.hide { opacity:0; visibility:hidden; pointer-events:none; }
 
@@ -61,9 +57,9 @@ body {
   content:'';
   position:absolute; top:0; left:0;
   width:54px; height:100%;
-  background: linear-gradient(to right, #020202 65%, #181818);
-  border-right: 3px solid #252525;
-  box-shadow: inset -6px 0 18px rgba(0,0,0,0.9), 4px 0 10px rgba(0,0,0,0.5);
+  background: linear-gradient(to right, #3c0d1b 60%, #5a0f1c 100%);
+  border-right: 2px solid rgba(216,179,95,0.35);
+  box-shadow: inset -6px 0 18px rgba(0,0,0,0.75), 4px 0 12px rgba(122,22,40,0.45);
   z-index:1;
 }
 
@@ -71,25 +67,23 @@ body {
 #splash::after {
   content:'';
   position:absolute; inset:0;
-  background: radial-gradient(ellipse 55% 38% at 65% 44%, rgba(255,255,255,0.035) 0%, transparent 70%);
+  background: radial-gradient(ellipse 55% 38% at 65% 44%, rgba(216,179,95,0.08) 0%, transparent 70%);
   pointer-events:none; z-index:1;
 }
 
 /* ── The label ── */
 .splash-label {
   position:relative; z-index:2;
-  background: #f4f1ec;
-  width: min(350px, 78vw);
-  padding: 1.5rem 2rem 2.6rem;
+  background: linear-gradient(160deg, #27121d 0%, #1d1119 100%);
+  width: min(480px, 85vw);
+  padding: 2rem 2.5rem 3rem;
   display:flex; flex-direction:column; align-items:center; gap:0.8rem;
   border-radius: 4px 4px 42% 42% / 4px 4px 26px 26px;
-  border: 2px solid #bbb;
+  border: 1px solid rgba(216,179,95,0.35);
   box-shadow:
-    0 2px 0 #ccc,
-    0 4px 0 #bbb,
-    0 6px 0 #aaa,
     0 10px 32px rgba(0,0,0,0.75),
-    inset 0 1px 0 rgba(255,255,255,0.95);
+    0 0 28px rgba(122,22,40,0.25),
+    inset 0 1px 0 rgba(216,179,95,0.22);
   opacity:0;
   animation: labelIn 0.65s 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
@@ -97,27 +91,19 @@ body {
   from { opacity:0; transform:scale(0.88) translateY(14px); }
   to   { opacity:1; transform:scale(1) translateY(0); }
 }
-/* Ruled lines at bottom of label */
-.splash-label::after {
-  content:'';
-  position:absolute; bottom:0.85rem; left:1.3rem; right:1.3rem; height:52px;
-  background: repeating-linear-gradient(transparent 0, transparent 12px, #bbb 12px, #bbb 13px);
-  opacity:0.55;
-  border-radius: 0 0 50% 50% / 0 0 14px 14px;
-}
 
 .splash-label-eyebrow {
-  font-family:'Patrick Hand',cursive;
+  font-family:'Inter',sans-serif;
   font-size:0.63rem; letter-spacing:0.22em;
-  color:#888; text-transform:uppercase; text-align:center;
+  color:rgba(216,179,95,0.78); text-transform:uppercase; text-align:center;
 }
 .splash-title {
   display:flex; flex-wrap:wrap; justify-content:center;
-  font-family:'Caveat',cursive;
+  font-family:'Cinzel',serif;
   font-size:clamp(2rem,7vw,3.1rem); font-weight:700;
-  color:#0d0d0d; line-height:1;
+  color:var(--royal-gold); line-height:1;
   position:relative; z-index:1;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  text-shadow: 0 2px 10px rgba(216,179,95,0.35);
 }
 .splash-title span {
   display:inline-block; opacity:0; transform:translateY(10px);
@@ -126,36 +112,42 @@ body {
 @keyframes letterDrop { to { opacity:1; transform:translateY(0); } }
 
 .splash-crown {
-  font-size:1.55rem; position:relative; z-index:1;
+  font-size:3.5rem; position:relative; z-index:1;
+  color: var(--royal-gold);
   animation: crownSway 3s ease-in-out infinite;
-  filter: grayscale(1) brightness(0.08);
+  filter: drop-shadow(0 0 12px rgba(216,179,95,0.5));
 }
 @keyframes crownSway {
   0%,100%{transform:rotate(-5deg) scale(1);}
   50%{transform:rotate(5deg) scale(1.07);}
 }
 .splash-sub-label {
-  font-family:'Patrick Hand',cursive;
+  font-family:'Inter',sans-serif;
   font-size:0.62rem; letter-spacing:0.13em;
-  color:#777; text-transform:uppercase;
+  color:rgba(245,245,247,0.72); text-transform:uppercase;
   position:relative; z-index:1; text-align:center;
+  padding: 0.7rem 1.5rem;
+  border-top: 1px solid rgba(216,179,95,0.4);
+  border-bottom: 1px solid rgba(216,179,95,0.4);
+  width: calc(100% - 2rem);
+  margin: 0.8rem 1rem 0;
 }
 
 /* Loading bar */
 .splash-bar {
   position:relative; z-index:2;
-  width:min(190px,48vw); height:2px;
-  background:rgba(255,255,255,0.07);
+  width:min(190px,48vw); height:3px;
+  background:rgba(122,22,40,0.35);
   border-radius:99px; overflow:hidden;
   opacity:0;
   animation: fadeUp 0.4s 2.5s forwards;
 }
 .splash-bar-fill {
   height:100%;
-  background: linear-gradient(90deg, rgba(255,255,255,0.25), rgba(255,255,255,0.8));
+  background: linear-gradient(90deg, var(--accent-burgundy), var(--royal-gold));
   border-radius:99px; width:0;
   animation: barFill 1.3s 2.6s ease forwards;
-  box-shadow: 0 0 6px rgba(255,255,255,0.55);
+  box-shadow: 0 0 10px rgba(216,179,95,0.5);
 }
 @keyframes barFill { to { width:100%; } }
 @keyframes fadeUp {
@@ -168,14 +160,8 @@ body {
   min-height:100vh; display:none; flex-direction:column;
   align-items:center; padding:2rem 1rem 6rem 5rem;
   position:relative;
-  background-color: var(--black-mid);
-  background-image:
-    repeating-linear-gradient(
-      transparent, transparent calc(var(--line-h) - 1px),
-      var(--rule-line) calc(var(--line-h) - 1px),
-      var(--rule-line) var(--line-h)
-    ),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.14'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23f)'/%3E%3C/svg%3E");
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 20% 10%, rgba(122,22,40,0.14), transparent 32%);
   background-attachment:fixed;
   animation:appFadeIn 0.7s ease forwards;
 }
@@ -186,15 +172,15 @@ body {
 #app::before {
   content:''; position:fixed; top:0; left:52px;
   width:1.5px; height:100%;
-  background:var(--margin-line);
-  box-shadow:0 0 5px rgba(255,255,255,0.1);
+  background:transparent;
+  box-shadow:none;
   z-index:0; pointer-events:none;
 }
 /* Spine shadow */
 #app::after {
   content:''; position:fixed; top:0; left:0;
   width:52px; height:100%;
-  background:linear-gradient(to right,#020202 60%,transparent);
+  background:transparent;
   z-index:0; pointer-events:none;
 }
 
@@ -202,9 +188,10 @@ body {
 .hole {
   position:fixed; left:16px;
   width:21px; height:21px;
-  background:#070707; border-radius:50%;
-  border:1.5px solid #252525;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.95), 0 0 0 3px rgba(255,255,255,0.03);
+  background:transparent; border-radius:50%;
+  border:none;
+  box-shadow:none;
+  opacity:0;
   z-index:1; pointer-events:none;
 }
 
@@ -214,61 +201,46 @@ body {
   display:flex; align-items:center; justify-content:space-between;
   padding:1rem 1.5rem; margin-bottom:2rem;
   position:relative; z-index:10;
-  border-bottom:1px solid var(--rule-bright);
+  border-bottom:1px solid var(--border-subtle);
 }
 .logo {
-  font-family:'Caveat',cursive; font-size:2.2rem; font-weight:700;
-  color:#fff;
-  text-shadow: 0 0 14px rgba(255,255,255,0.7), 0 0 32px rgba(255,255,255,0.25);
+  font-family: 'Cinzel', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent-gold);
 }
-.logo span { color:#fff; }
+.logo span { color: var(--royal-gold); }
 .nav-actions { display:flex; gap:0.75rem; align-items:center; }
 #userInfo {
-  font-family:'Patrick Hand',cursive; font-size:0.88rem;
-  color:var(--white-dim); background:var(--white-ghost);
-  border:1px solid rgba(255,255,255,0.1);
+  font-family:'Inter',sans-serif; font-size:0.88rem;
+  color:var(--text-secondary); background:rgba(255,255,255,0.02);
+  border:1px solid var(--border-subtle);
   padding:0.3rem 0.9rem; border-radius:20px; display:none;
 }
 
 /* ═══════════════════ CARDS — BLACK 3D ═══════════════════ */
 .card {
-  background: var(--black-card);
-  background-image:
-    repeating-linear-gradient(
-      transparent, transparent calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.055) calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.055) var(--line-h)
-    );
-  border:1px solid rgba(255,255,255,0.09);
-  border-radius:3px;
-  position:relative; z-index:5;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 2rem;
   box-shadow:
-    3px 3px 0 #040404,
-    6px 6px 0 #070707,
-    9px 9px 0 #090909,
-    13px 13px 28px rgba(0,0,0,0.88),
-    0 0 0 1px rgba(255,255,255,0.04);
-  transform-style:preserve-3d;
-  transition:transform 0.28s ease, box-shadow 0.28s ease;
+    0 10px 30px rgba(0,0,0,0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   width:100%; max-width:600px;
-  padding:2rem 2rem 2rem 3.5rem;
   margin:0 auto; overflow:hidden;
 }
 .card:hover {
-  transform:translate(-3px,-3px) rotateX(1deg);
+  transform: translateY(-4px);
   box-shadow:
-    6px 6px 0 #040404,
-    10px 10px 0 #070707,
-    14px 14px 0 #090909,
-    19px 19px 35px rgba(0,0,0,0.93),
-    0 0 0 1px rgba(255,255,255,0.08),
-    0 0 22px rgba(255,255,255,0.025);
+    0 18px 45px rgba(0,0,0,0.6);
 }
 .card::before {
   content:''; position:absolute; top:0; left:2.8rem;
-  width:1px; height:100%;
-  background:rgba(255,255,255,0.13);
-  box-shadow:0 0 3px rgba(255,255,255,0.06);
+  width:0; height:0;
+  background:transparent;
+  box-shadow:none;
 }
 
 /* ═══════════════════ PAGES ═══════════════════ */
@@ -277,78 +249,111 @@ body {
 @keyframes slideIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 
 /* ═══════════════════ TYPOGRAPHY ═══════════════════ */
-h1,h2,h3{font-family:'Caveat',cursive;color:#fff;line-height:1.2;}
-h1{font-size:2.2rem;text-shadow:0 0 18px rgba(255,255,255,0.5);}
-h2{font-size:1.8rem;text-shadow:0 0 12px rgba(255,255,255,0.4);}
-h3{font-size:1.4rem;color:var(--white-dim);}
-p,label,small{font-family:'Kalam',cursive;color:var(--white-dim);line-height:1.7;}
+h1,h2,h3 {
+  font-family: 'Cinzel', serif;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  line-height:1.2;
+}
+h1{font-size:2.2rem;}
+h2{font-size:1.8rem;}
+h3{font-size:1.4rem;color:var(--text-secondary);}
+p,label,small {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-secondary);
+  line-height:1.7;
+}
 small{font-size:0.85rem;opacity:0.55;}
+
+/* ═══════════════════ PASSWORD TOGGLE ═══════════════════ */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper input {
+  flex: 1;
+}
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.3rem;
+  transition: color 0.2s ease;
+}
+.password-toggle:hover {
+  color: var(--text-primary);
+}
 
 /* ═══════════════════ FORMS ═══════════════════ */
 .field-group{display:flex;flex-direction:column;gap:0.4rem;}
 .field-group label{
-  font-size:0.82rem;color:rgba(255,255,255,0.42);
+  font-size:0.82rem;color:var(--text-muted);
   font-weight:600;letter-spacing:0.07em;
-  text-transform:uppercase;font-family:'Patrick Hand',cursive;
+  text-transform:uppercase;font-family:'Inter',sans-serif;
 }
-input[type="text"],input[type="email"],input[type="password"],textarea,select{
-  font-family:'Kalam',cursive; font-size:1rem;
-  background:transparent; border:none;
-  border-bottom:1.5px solid rgba(255,255,255,0.18);
-  padding:0.5rem 0.25rem; color:#fff; width:100%;
-  outline:none; transition:border-color 0.2s, box-shadow 0.2s; resize:vertical;
+input, textarea, select {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  color: var(--text-primary);
+  width:100%;
+  outline:none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  resize:vertical;
 }
 input:focus,textarea:focus,select:focus{
-  border-bottom-color:rgba(255,255,255,0.7);
-  box-shadow:0 1px 0 rgba(255,255,255,0.28);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(122,22,40,0.22);
 }
-select{background:var(--black-card);color:#fff;}
-select option{background:#1a1a1a;}
-::placeholder{color:rgba(255,255,255,0.18);}
+select option{background:var(--bg-secondary);}
+::placeholder{color:var(--text-muted);}
 
 /* ═══════════════════ BUTTONS ═══════════════════ */
 .btn{
-  font-family:'Caveat',cursive; font-size:1.1rem; font-weight:700;
-  padding:0.6rem 1.8rem;
-  border:1.5px solid rgba(255,255,255,0.28);
-  border-radius:3px; cursor:pointer;
-  transition:all 0.15s ease; letter-spacing:0.04em;
-  background:var(--black-card2); color:#fff;
-  box-shadow:3px 3px 0 #000, 5px 5px 10px rgba(0,0,0,0.65);
+  font-family: 'Inter', sans-serif;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 0.6rem 1.6rem;
+  transition: all 0.2s ease;
+  cursor:pointer;
 }
 .btn:hover{
-  transform:translate(-2px,-2px);
-  border-color:rgba(255,255,255,0.7);
-  box-shadow:5px 5px 0 #000, 8px 8px 14px rgba(0,0,0,0.75), 0 0 14px rgba(255,255,255,0.07);
-  text-shadow:0 0 10px rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.04);
 }
-.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000;}
+.btn:active{transform:translateY(1px);}
 
 .btn-primary{
-  background:#141414; color:#fff;
-  border-color:rgba(255,255,255,0.45);
-  box-shadow:3px 3px 0 #000, 0 0 10px rgba(255,255,255,0.05);
+  background: var(--accent-burgundy);
+  color: #111;
+  border: none;
+  font-weight: 600;
 }
 .btn-primary:hover{
-  box-shadow:5px 5px 0 #000, 0 0 20px rgba(255,255,255,0.13);
-  border-color:rgba(255,255,255,0.9);
-  text-shadow:0 0 14px rgba(255,255,255,0.85);
+  background: var(--royal-gold);
 }
 .btn-gold{
-  background:#0f0f0f; color:#fff;
-  border-color:rgba(255,255,255,0.35);
-  box-shadow:3px 3px 0 #000, 0 0 8px rgba(255,255,255,0.04);
+  background: var(--accent-burgundy);
+  color: #111;
+  border: none;
+  font-weight: 600;
 }
 .btn-gold:hover{
-  border-color:rgba(255,255,255,0.8);
-  box-shadow:5px 5px 0 #000, 0 0 18px rgba(255,255,255,0.1);
-  text-shadow:0 0 10px rgba(255,255,255,0.7);
+  background: var(--royal-gold);
 }
 .btn-sm{font-size:0.9rem;padding:0.35rem 1rem;}
 .btn-link{
   border:none;background:none;box-shadow:none;
-  color:rgba(255,255,255,0.45);text-decoration:underline;
-  padding:0;cursor:pointer;font-family:'Kalam',cursive;
+  color:var(--text-secondary);text-decoration:underline;
+  padding:0;cursor:pointer;font-family:'Inter',sans-serif;
 }
 .btn-link:hover{transform:none;box-shadow:none;color:#fff;}
 .btn-group{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;}
@@ -356,53 +361,50 @@ select option{background:#1a1a1a;}
 /* ═══════════════════ TABS ═══════════════════ */
 .tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:1.5rem;}
 .tab{
-  font-family:'Caveat',cursive; font-size:1.1rem;
-  padding:0.5rem 1.5rem; cursor:pointer;
-  color:rgba(255,255,255,0.3);
+  font-family: 'Inter', sans-serif;
+  color: var(--text-muted);
   border-bottom:2px solid transparent;
-  transition:all 0.2s; margin-bottom:-1px;
+  padding: 0.6rem 1.5rem;
+  transition: all 0.2s ease;
+  margin-bottom:-1px;
+  cursor:pointer;
   background:none; border-top:none; border-left:none; border-right:none;
 }
-.tab:hover{color:rgba(255,255,255,0.65);}
+.tab:hover{color:var(--text-secondary);}
 .tab.active{
-  color:#fff; border-bottom-color:#fff; font-weight:700;
-  text-shadow:0 0 12px rgba(255,255,255,0.65);
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  box-shadow: 0 4px 12px rgba(122,22,40,0.32);
 }
 
 /* ═══════════════════ QUIZ GRID ═══════════════════ */
 .quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;}
 .quiz-card{
-  background:var(--black-card);
-  background-image:
-    repeating-linear-gradient(
-      transparent, transparent calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.045) calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.045) var(--line-h)
-    );
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:3px;
-  padding:1.2rem 1.2rem 1.2rem 2rem;
-  box-shadow: 3px 3px 0 #030303, 6px 6px 0 #060606, 9px 9px 18px rgba(0,0,0,0.82);
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  padding:1.2rem;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45);
   position:relative; cursor:pointer;
   transition:transform 0.2s ease, box-shadow 0.2s ease;
   overflow:hidden;
 }
 .quiz-card::before{
   content:''; position:absolute; top:0; left:1.5rem;
-  width:1px; height:100%; background:rgba(255,255,255,0.11);
+  width:0; height:0; background:transparent;
 }
 .quiz-card:hover{
-  transform:translate(-3px,-3px);
-  box-shadow:6px 6px 0 #030303, 10px 10px 0 #060606, 14px 14px 24px rgba(0,0,0,0.9), 0 0 14px rgba(255,255,255,0.03);
-  border-color:rgba(255,255,255,0.18);
+  transform:translateY(-3px);
+  box-shadow:0 14px 30px rgba(0,0,0,0.6);
+  border-color:rgba(122,22,40,0.38);
 }
 .quiz-card-title{
-  font-family:'Caveat',cursive; font-size:1.3rem; color:#fff;
-  margin-bottom:0.3rem; text-shadow:0 0 8px rgba(255,255,255,0.28);
+  font-family:'Cinzel',serif; font-size:1.15rem; color:var(--text-primary);
+  margin-bottom:0.3rem;
 }
-.quiz-card-meta{font-size:0.82rem;color:rgba(255,255,255,0.38);font-family:'Patrick Hand',cursive;}
+.quiz-card-meta{font-size:0.82rem;color:var(--text-secondary);font-family:'Inter',sans-serif;}
 .quiz-badge{
-  display:inline-block; font-family:'Patrick Hand',cursive;
+  display:inline-block; font-family:'Inter',sans-serif;
   font-size:0.72rem; padding:0.12rem 0.5rem; border-radius:20px;
   margin-top:0.4rem; border:1px solid rgba(255,255,255,0.22);
   color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.04);
@@ -420,12 +422,12 @@ select option{background:#1a1a1a;}
 }
 @keyframes fadeIn{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
 .q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
-.q-num{font-family:'Caveat',cursive;font-size:1.1rem;color:rgba(255,255,255,0.65);font-weight:700;}
+.q-num{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--text-secondary);font-weight:700;}
 .q-remove{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:1.2rem;padding:0.2rem;transition:all 0.15s;}
 .q-remove:hover{color:#fff;text-shadow:0 0 8px rgba(255,255,255,0.7);transform:scale(1.2);}
 .options-grid{display:grid;gap:0.4rem;margin-top:0.6rem;}
 .option-row{display:grid;grid-template-columns:auto 1fr auto;gap:0.5rem;align-items:center;}
-.option-label{font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.38);}
+.option-label{font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text-secondary);}
 .correct-radio{accent-color:#fff;width:16px;height:16px;cursor:pointer;}
 
 /* ═══════════════════ ATTEMPT ═══════════════════ */
@@ -441,16 +443,15 @@ select option{background:#1a1a1a;}
   background:rgba(255,255,255,0.038);
 }
 .attempt-q-text{
-  font-family:'Caveat',cursive; font-size:1.2rem;
+  font-family:'Cinzel',serif; font-size:1.1rem;
   margin-bottom:0.8rem; color:#fff;
-  text-shadow:0 0 6px rgba(255,255,255,0.18);
 }
 .attempt-options{display:flex;flex-direction:column;gap:0.32rem;}
 .attempt-option{
   display:flex;align-items:center;gap:0.7rem;
   padding:0.5rem 0.8rem; border-radius:3px;
   cursor:pointer; transition:background 0.15s, border-color 0.15s;
-  font-family:'Kalam',cursive; color:var(--white-dim);
+  font-family:'Inter',sans-serif; color:var(--text-secondary);
   border:1px solid transparent;
 }
 .attempt-option:hover{
@@ -459,34 +460,33 @@ select option{background:#1a1a1a;}
 }
 .attempt-option input[type="radio"]{accent-color:#fff;}
 .fill-input{
-  font-family:'Kalam',cursive; font-size:1rem;
-  border:none; border-bottom:1.5px solid rgba(255,255,255,0.18);
-  background:transparent; padding:0.4rem 0.2rem; width:100%;
-  color:#fff; outline:none;
+  font-family:'Inter',sans-serif; font-size:1rem;
+  border:1px solid var(--border-subtle);
+  border-radius:8px;
+  background:var(--bg-secondary); padding:0.7rem 1rem; width:100%;
+  color:var(--text-primary); outline:none;
   transition:border-color 0.2s, box-shadow 0.2s;
 }
 .fill-input:focus{
-  border-bottom-color:rgba(255,255,255,0.7);
-  box-shadow:0 1px 0 rgba(255,255,255,0.28);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(122,22,40,0.22);
 }
 
 /* ═══════════════════ RESULT ═══════════════════ */
 .result-banner{
   text-align:center; padding:2rem;
-  background:var(--black-card);
-  background-image:
-    repeating-linear-gradient(
-      transparent, transparent calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.055) calc(var(--line-h) - 1px),
-      rgba(255,255,255,0.055) var(--line-h)
-    );
-  border-radius:3px;
-  border:1px solid rgba(255,255,255,0.22);
-  box-shadow:4px 4px 0 #000, 8px 8px 0 #040404, 12px 12px 24px rgba(0,0,0,0.85), 0 0 28px rgba(255,255,255,0.03);
+  background:var(--bg-secondary);
+  border-radius:12px;
+  border:1px solid var(--border-subtle);
+  box-shadow:0 12px 30px rgba(0,0,0,0.5);
 }
 .result-score{
-  font-family:'Caveat',cursive; font-size:4.5rem; color:#fff; line-height:1;
-  text-shadow: 0 0 22px rgba(255,255,255,0.82), 0 0 45px rgba(255,255,255,0.38), 0 0 70px rgba(255,255,255,0.12);
+  font-family: 'Cinzel', serif;
+  font-size: 4rem;
+  color: var(--accent-gold);
+  text-shadow:
+    0 0 15px rgba(122,22,40,0.65),
+    0 0 30px rgba(122,22,40,0.28);
 }
 .result-emoji{font-size:3rem;filter:drop-shadow(0 0 8px rgba(255,255,255,0.35));}
 
@@ -494,11 +494,11 @@ select option{background:#1a1a1a;}
 .score-row{
   display:flex;justify-content:space-between;align-items:center;
   padding:0.75rem 0; border-bottom:1px solid rgba(255,255,255,0.06);
-  font-family:'Kalam',cursive;
+  font-family:'Inter',sans-serif;
 }
 .score-row:last-child{border-bottom:none;}
 .score-val{
-  font-family:'Caveat',cursive; font-size:1.4rem; color:#fff; font-weight:700;
+  font-family:'Cinzel',serif; font-size:1.4rem; color:#fff; font-weight:700;
   text-shadow:0 0 10px rgba(255,255,255,0.5);
 }
 
@@ -506,15 +506,20 @@ select option{background:#1a1a1a;}
 #toast{
   position:fixed; bottom:2rem; right:2rem;
   background:#0e0e0e; border:1px solid rgba(255,255,255,0.18);
-  color:#fff; font-family:'Patrick Hand',cursive;
+  color:#fff; font-family:'Inter',sans-serif;
   padding:0.8rem 1.5rem; border-radius:3px;
   box-shadow:4px 4px 0 #000, 0 0 18px rgba(255,255,255,0.06);
   z-index:9000; opacity:0; transform:translateY(12px);
   transition:all 0.3s ease; max-width:300px;
 }
 #toast.show{opacity:1;transform:translateY(0);}
-#toast.success{border-color:rgba(255,255,255,0.5);text-shadow:0 0 8px rgba(255,255,255,0.45);}
-#toast.error{border-color:rgba(255,255,255,0.15);opacity:0.75;}
+#toast.success{border-color:rgba(216,179,95,0.5);text-shadow:0 0 8px rgba(216,179,95,0.45);}
+#toast.error{
+  background: linear-gradient(135deg, #2a0f1c 0%, #1d1119 100%);
+  border:1px solid rgba(122,22,40,0.6);
+  color:rgba(245,245,247,0.9);
+  box-shadow: 0 0 20px rgba(122,22,40,0.3), 4px 4px 0 #000;
+}
 
 /* ═══════════════════ PROGRESS ═══════════════════ */
 .progress-bar{
@@ -534,13 +539,13 @@ select option{background:#1a1a1a;}
 .divider{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:1rem 0;}
 .tag{
   display:inline-block; background:rgba(255,255,255,0.04);
-  color:rgba(255,255,255,0.45); font-family:'Patrick Hand',cursive;
+  color:rgba(255,255,255,0.45); font-family:'Inter',sans-serif;
   font-size:0.8rem; padding:0.15rem 0.6rem; border-radius:20px;
   border:1px solid rgba(255,255,255,0.1); margin:0.1rem;
 }
 .empty-state{
   text-align:center; padding:3rem 1rem; opacity:0.3;
-  font-family:'Caveat',cursive; font-size:1.3rem; color:#fff;
+  font-family:'Cinzel',serif; font-size:1.2rem; color:#fff;
 }
 .empty-state .emoji{font-size:3rem;display:block;margin-bottom:0.5rem;}
 .spinner{
@@ -556,7 +561,7 @@ select option{background:#1a1a1a;}
   #app{padding-left:3.5rem;}
   #app::before{left:38px;} #app::after{width:38px;}
   .hole{left:9px;width:18px;height:18px;}
-  .card{padding:1.5rem 1.2rem 1.5rem 2rem;}
+  .card{padding:1.5rem 1.2rem;}
   .card::before{left:1.5rem;}
   .quiz-grid{grid-template-columns:1fr;}
   .site-header{flex-direction:column;gap:1rem;text-align:center;}
@@ -574,8 +579,8 @@ select option{background:#1a1a1a;}
 <!-- ══ SPLASH — COMPOSITION NOTEBOOK COVER ══ -->
 <div id="splash">
   <div class="splash-label">
-    <div class="splash-label-eyebrow"></div>
-    <div class="splash-crown">👑</div>
+    <div class="splash-label-eyebrow">RULE. REIGN. RECALL.</div>
+    <div class="splash-crown">♕</div>
     <div class="splash-title" id="splashTitle"></div>
     <div class="splash-sub-label">WHERE KNOWLEDGE WEARS A CROWN</div>
   </div>
@@ -596,11 +601,10 @@ select option{background:#1a1a1a;}
 <!-- ══ APP ══ -->
 <div id="app">
   <header class="site-header">
-    <div class="logo">Quiz<span>Queens</span> </div>
+    <div class="logo">Quiz<span>Queens</span></div>
     <div class="nav-actions">
       <div id="userInfo"></div>
       <button class="btn btn-sm" id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
-      <button class="btn btn-sm btn-primary" id="loginNavBtn" onclick="showPage('auth')">Login</button>
     </div>
   </header>
 
@@ -612,38 +616,20 @@ select option{background:#1a1a1a;}
         <button class="tab" onclick="switchAuthTab('register')">Register</button>
       </div>
       <div id="loginForm">
-        <h2>Welcome back ✍️</h2>
+        <h2 style="color:var(--royal-gold);text-shadow:0 0 18px rgba(216,179,95,0.6), 0 0 35px rgba(216,179,95,0.25);">Welcome back</h2>
         <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
-          <div class="field-group"><label>Username</label><input type="text" id="loginUsername" placeholder="your name here..."/></div>
-         <div class="field-group">
-  <label>Password</label>
-  <div style="position:relative;">
-    <input type="password" id="loginPassword" placeholder="shhh... secret"/>
-    <span onclick="togglePassword('loginPassword', this)" 
-          style="position:absolute; right:5px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:0.8rem; opacity:0.6;">
-          Show
-    </span>
-  </div>
-</div>
-          <button class="btn btn-primary" onclick="login()">Login →</button>
+          <div class="field-group"><label>Username</label><input type="text" id="loginUsername" placeholder="Your name here"/></div>
+          <div class="field-group"><label>Password</label><div class="password-wrapper"><input type="password" id="loginPassword" placeholder="Shhh... Secret"/><button type="button" class="password-toggle" id="loginPasswordToggle" onclick="togglePassword('loginPassword')"><svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></button></div></div>
+          <button class="btn btn-primary" onclick="login()">Login</button>
         </div>
       </div>
       <div id="registerForm" style="display:none">
-        <h2>Join the Queens </h2>
+        <h2 style="color:var(--royal-gold);text-shadow:0 0 18px rgba(216,179,95,0.6), 0 0 35px rgba(216,179,95,0.25);">Join the Queens</h2>
         <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
-          <div class="field-group"><label>Username</label><input type="text" id="regUsername" placeholder="choose a cool name..."/></div>
+          <div class="field-group"><label>Username</label><input type="text" id="regUsername" placeholder="Enter a cool name"/></div>
           <div class="field-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"/></div>
-         <div class="field-group">
-  <label>Password</label>
-  <div style="position:relative;">
-    <input type="password" id="regPassword" placeholder="make it strong!"/>
-    <span onclick="togglePassword('regPassword', this)" 
-          style="position:absolute; right:5px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:0.8rem; opacity:0.6;">
-          Show
-    </span>
-  </div>
-</div>
-          <button class="btn btn-gold" onclick="register()">Create Account ✨</button>
+          <div class="field-group"><label>Password</label><div class="password-wrapper"><input type="password" id="regPassword" placeholder="Make it strong!"/><button type="button" class="password-toggle" id="regPasswordToggle" onclick="togglePassword('regPassword')"><svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></button></div></div>
+          <button class="btn btn-gold" onclick="register()">Create Account</button>
         </div>
       </div>
     </div>
@@ -652,7 +638,7 @@ select option{background:#1a1a1a;}
   <!-- DASHBOARD -->
   <div class="page" id="page-dashboard">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-      <h1 id="dashGreeting">Hello, Queen! </h1>
+      <h1 id="dashGreeting">Hello, Queen</h1>
       <button class="btn btn-gold" onclick="showPage('create')">+ Create Quiz</button>
     </div>
     <div class="tabs" style="max-width:900px;width:100%;">
@@ -668,7 +654,7 @@ select option{background:#1a1a1a;}
   <!-- CREATE QUIZ -->
   <div class="page" id="page-create">
     <div class="card" style="max-width:750px">
-      <h2>✏️ Create a New Quiz</h2>
+      <h2>Create a New Quiz</h2>
       <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
         <div class="field-group"><label>Quiz Title *</label><input type="text" id="quizTitle" placeholder="Give your quiz a catchy name..."/></div>
         <div class="field-group"><label>Description</label><textarea id="quizDesc" rows="2" placeholder="What's this quiz about?"></textarea></div>
@@ -688,7 +674,7 @@ select option{background:#1a1a1a;}
       </div>
       <div id="questionsContainer"></div>
       <div class="btn-group mt-3">
-        <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz 💾</button>
+        <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz</button>
         <button class="btn" onclick="showPage('dashboard')">Cancel</button>
       </div>
     </div>
@@ -702,7 +688,7 @@ select option{background:#1a1a1a;}
       <p id="attemptDesc" style="margin-bottom:1.2rem;"></p>
       <div id="attemptQuestions"></div>
       <div class="btn-group mt-3">
-        <button class="btn btn-primary" onclick="submitAttempt()">Submit Answers 🎯</button>
+        <button class="btn btn-primary" onclick="submitAttempt()">Submit Answers</button>
         <button class="btn" onclick="showPage('dashboard')">← Back</button>
       </div>
     </div>
@@ -715,7 +701,7 @@ select option{background:#1a1a1a;}
         <div class="result-emoji" id="resultEmoji">🎉</div>
         <div class="result-score" id="resultScore">0/0</div>
         <p id="resultMsg" style="margin-top:0.5rem;font-size:1.1rem;color:rgba(255,255,255,0.65);"></p>
-        <p id="resultPct" style="font-family:'Caveat',cursive;font-size:1.4rem;color:rgba(255,255,255,0.45);margin-top:0.3rem;text-shadow:0 0 10px rgba(255,255,255,0.3);"></p>
+        <p id="resultPct" style="font-family:'Cinzel',serif;font-size:1.4rem;color:rgba(255,255,255,0.45);margin-top:0.3rem;text-shadow:0 0 10px rgba(255,255,255,0.3);"></p>
       </div>
       <div id="resultBreakdown" style="margin-top:1.5rem;"></div>
       <div class="btn-group mt-3">
@@ -749,7 +735,7 @@ window.addEventListener('DOMContentLoaded', () => {
     container.appendChild(span);
   });
 
-  const splashDuration = 400 + TITLE.length * 90 + 1800;
+  const splashDuration = 400 + TITLE.length * 90 + 3500;
   setTimeout(() => {
     document.getElementById('splash').classList.add('hide');
     const app = document.getElementById('app');
@@ -772,7 +758,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === '?') {
-    alert(`📚 KEYBOARD SHORTCUTS\n\n🧭 Navigation:\n  • Tab: Next question\n  • Shift+Tab: Prev question\n  • Escape: Back to dashboard\n\n📝 Quiz Attempt:\n  • 1-4: Select MCQ option\n  • Ctrl+Enter: Submit quiz\n\n✨ Create Quiz:\n  • Ctrl+K: Add question\n  • Ctrl+S: Save quiz`);
+    alert(` KEYBOARD SHORTCUTS\n\n Navigation:\n  • Tab: Next question\n  • Shift+Tab: Prev question\n  • Escape: Back to dashboard\n\n Quiz Attempt:\n  • 1-4: Select MCQ option\n  • Ctrl+Enter: Submit quiz\n\n Create Quiz:\n  • Ctrl+K: Add question\n  • Ctrl+S: Save quiz`);
     return;
   }
   if (pageName === 'page-attempt') {
@@ -844,7 +830,7 @@ async function login() {
     token = data.token; currentUser = data.user;
     localStorage.setItem('qq_token', token);
     localStorage.setItem('qq_user', JSON.stringify(currentUser));
-    toast('Welcome back, Queen! 👑', 'success');
+    toast('Welcome back, Queen!', 'success');
     initAuthenticatedState();
   } catch(e) { toast(e.message, 'error'); }
 }
@@ -855,7 +841,7 @@ async function register() {
   if (!username || !email || !password) return toast('Fill in all fields', 'error');
   try {
     await api('POST', '/auth/register', { username, email, password });
-    toast('Account created! Please login 🎉', 'success');
+    toast('Account created! Please login', 'success');
     switchAuthTab('login');
   } catch(e) { toast(e.message, 'error'); }
 }
@@ -864,11 +850,31 @@ function logout() {
   localStorage.removeItem('qq_token'); localStorage.removeItem('qq_user');
   document.getElementById('userInfo').style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'none';
-  document.getElementById('loginNavBtn').style.display = 'inline-block';
-  showPage('auth'); toast('Goodbye! 👋');
+  showPage('auth'); toast('Goodbye!');
 }
+
+// ══════════════════════════════════════════════════════
+//  PASSWORD TOGGLE
+// ══════════════════════════════════════════════════════
+function togglePassword(fieldId) {
+  const input = document.getElementById(fieldId);
+  const toggle = document.getElementById(fieldId === 'loginPassword' ? 'loginPasswordToggle' : 'regPasswordToggle');
+  const eyeOpen = toggle.querySelector('.eye-open');
+  const eyeClosed = toggle.querySelector('.eye-closed');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeOpen.style.display = 'none';
+    eyeClosed.style.display = 'block';
+  } else {
+    input.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+}
+
 function initAuthenticatedState() {
-  document.getElementById('userInfo').textContent = `✍️ ${currentUser.username}`;
+  document.getElementById('userInfo').textContent = ` ${currentUser.username}`;
   document.getElementById('userInfo').style.display = 'inline-block';
   document.getElementById('logoutBtn').style.display = 'inline-block';
   document.getElementById('loginNavBtn').style.display = 'none';
@@ -931,7 +937,7 @@ async function loadMine() {
   try {
     const quizzes = await api('GET', '/quizzes/mine');
     grid.innerHTML = '';
-    if (!quizzes.length) { grid.innerHTML='<div class="empty-state"><span class="emoji">✏️</span>You haven\'t created any quizzes yet.</div>'; return; }
+    if (!quizzes.length) { grid.innerHTML='<div class="empty-state">You haven\'t created any quizzes yet.</div>'; return; }
     quizzes.forEach(q => renderQuizCard(q, grid, true));
   } catch(e) { grid.innerHTML=`<div class="empty-state">⚠️ ${e.message}</div>`; }
 }
@@ -945,12 +951,12 @@ async function loadScores() {
   container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
   try {
     const scores = await api('GET', '/scores/mine');
-    if (!scores.length) { container.innerHTML='<div class="empty-state"><span class="emoji">📊</span>No scores yet. Take a quiz!</div>'; return; }
-    container.innerHTML = `<h3 style="margin-bottom:1rem;">My Score History 📊</h3>` +
+    if (!scores.length) { container.innerHTML='<div class="empty-state">No scores yet. Take a quiz!</div>'; return; }
+    container.innerHTML = `<h3 style="margin-bottom:1rem;">My Score History </h3>` +
       scores.map(s=>`
         <div class="score-row">
           <div>
-            <div style="font-family:'Caveat',cursive;font-size:1.1rem;color:#fff;">${escHtml(s.quizTitle)}</div>
+            <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;">${escHtml(s.quizTitle)}</div>
             <small>${new Date(s.attemptedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</small>
           </div>
           <div class="score-val">${s.score}/${s.total} <span style="font-size:0.85rem;opacity:0.45">(${Math.round(s.score/s.total*100)}%)</span></div>
@@ -975,7 +981,7 @@ function addQuestion(forceType) {
     <div class="q-header">
       <span class="q-num">Q${questionCount}</span>
       <div style="display:flex;gap:0.5rem;align-items:center;">
-        ${defaultQuizType()==='MIXED'?`<select class="btn btn-sm" style="padding:0.2rem 0.5rem;font-family:'Patrick Hand',cursive;font-size:0.8rem;background:#1a1a1a;color:#fff;border:1px solid rgba(255,255,255,0.2);" onchange="changeQType(${questionCount},this.value)"><option value="MCQ">MCQ</option><option value="FILL">Fill in Blank</option></select>`:''}
+        ${defaultQuizType()==='MIXED'?`<select class="btn btn-sm" style="padding:0.2rem 0.5rem;font-family:'Inter',sans-serif;font-size:0.8rem;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-subtle);" onchange="changeQType(${questionCount},this.value)"><option value="MCQ">MCQ</option><option value="FILL">Fill in Blank</option></select>`:''}
         <button class="q-remove" onclick="removeQuestion(${questionCount})" title="Remove">✕</button>
       </div>
     </div>
@@ -993,7 +999,7 @@ function renderOptionFields(n, type) {
     return `<div class="field-group mt-1"><label>Correct Answer</label><input type="text" id="q${n}-answer" placeholder="The exact correct answer..."/></div>`;
   }
   return `<div class="options-grid mt-1">
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:0.3rem 0.8rem;align-items:center;font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.28);margin-bottom:0.3rem;"><span>✓</span><span>Option text</span></div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:0.3rem 0.8rem;align-items:center;font-family:'Inter',sans-serif;font-size:0.8rem;color:rgba(255,255,255,0.28);margin-bottom:0.3rem;"><span>✓</span><span>Option text</span></div>
     ${['A','B','C','D'].map(l=>`
     <div class="option-row">
       <label class="option-label">${l}</label>
@@ -1124,13 +1130,13 @@ function showResult(result) {
   if (result.breakdown && result.breakdown.length) {
     const html = result.breakdown.map((b,i)=>`
       <div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-        <div style="font-family:'Caveat',cursive;font-size:1.05rem;color:#fff;">${i+1}. ${escHtml(b.questionText)}</div>
+        <div style="font-family:'Cinzel',serif;font-size:1.05rem;color:#fff;">${i+1}. ${escHtml(b.questionText)}</div>
         <div style="font-size:0.9rem;margin-top:0.2rem;">
           Your answer: <span style="color:${b.correct?'rgba(255,255,255,0.9)':'rgba(255,255,255,0.3)'};text-shadow:${b.correct?'0 0 8px rgba(255,255,255,0.6)':'none'}">${escHtml(b.userAnswer||'(no answer)')} ${b.correct?'✓':'✗'}</span>
           ${!b.correct?`<br>Correct: <span style="color:rgba(255,255,255,0.7);text-shadow:0 0 6px rgba(255,255,255,0.4)">${escHtml(b.correctAnswer)}</span>`:''}
         </div>
       </div>`).join('');
-    document.getElementById('resultBreakdown').innerHTML = `<h3 style="margin-bottom:0.5rem;">Review 📝</h3>${html}`;
+    document.getElementById('resultBreakdown').innerHTML = `<h3 style="margin-bottom:0.5rem;">Review </h3>${html}`;
   }
   showPage('result');
 }
@@ -1142,19 +1148,7 @@ function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function scrollToEl(el) { 
-  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
- }
-function togglePassword(id, el) {
-  const input = document.getElementById(id);
-  if (input.type === "password") {
-    input.type = "text";
-    el.textContent = "Hide";
-  } else {
-    input.type = "password";
-    el.textContent = "Show";
-  }
-}
+function scrollToEl(el) { setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100); }
 </script>
 </body>
 </html>
