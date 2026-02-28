@@ -615,7 +615,16 @@ select option{background:#1a1a1a;}
         <h2>Welcome back ✍️</h2>
         <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
           <div class="field-group"><label>Username</label><input type="text" id="loginUsername" placeholder="your name here..."/></div>
-          <div class="field-group"><label>Password</label><input type="password" id="loginPassword" placeholder="shhh... secret"/></div>
+         <div class="field-group">
+  <label>Password</label>
+  <div style="position:relative;">
+    <input type="password" id="loginPassword" placeholder="shhh... secret"/>
+    <span onclick="togglePassword('loginPassword', this)" 
+          style="position:absolute; right:5px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:0.8rem; opacity:0.6;">
+          Show
+    </span>
+  </div>
+</div>
           <button class="btn btn-primary" onclick="login()">Login →</button>
         </div>
       </div>
@@ -624,7 +633,16 @@ select option{background:#1a1a1a;}
         <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.2rem;">
           <div class="field-group"><label>Username</label><input type="text" id="regUsername" placeholder="choose a cool name..."/></div>
           <div class="field-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"/></div>
-          <div class="field-group"><label>Password</label><input type="password" id="regPassword" placeholder="make it strong!"/></div>
+         <div class="field-group">
+  <label>Password</label>
+  <div style="position:relative;">
+    <input type="password" id="regPassword" placeholder="make it strong!"/>
+    <span onclick="togglePassword('regPassword', this)" 
+          style="position:absolute; right:5px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:0.8rem; opacity:0.6;">
+          Show
+    </span>
+  </div>
+</div>
           <button class="btn btn-gold" onclick="register()">Create Account ✨</button>
         </div>
       </div>
@@ -1124,7 +1142,19 @@ function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function scrollToEl(el) { setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100); }
+function scrollToEl(el) { 
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ }
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+  if (input.type === "password") {
+    input.type = "text";
+    el.textContent = "Hide";
+  } else {
+    input.type = "password";
+    el.textContent = "Show";
+  }
+}
 </script>
 </body>
 </html>
