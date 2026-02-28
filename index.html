@@ -874,7 +874,6 @@ function initAuthenticatedState() {
   document.getElementById('userInfo').textContent = ` ${currentUser.username}`;
   document.getElementById('userInfo').style.display = 'inline-block';
   document.getElementById('logoutBtn').style.display = 'inline-block';
-  document.getElementById('loginNavBtn').style.display = 'none';
   document.getElementById('dashGreeting').textContent = `Hello, ${currentUser.username}! 👑`;
   showPage('dashboard'); loadBrowse();
 }
